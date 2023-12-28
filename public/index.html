@@ -25,6 +25,65 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>React App</title>
+
+    <script async src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
+    <script type="text/javascript">
+      /* exported gapiLoaded */
+      /* exported gisLoaded */
+      /* exported handleAuthClick */
+      /* exported handleSignoutClick */
+
+      // TODO(developer): Set to client ID and API key from the Developer Console
+      const CLIENT_ID = '1027312931677-pcphcmai165agebltgscpmde90ukf1cb.apps.googleusercontent.com';
+      const API_KEY = 'AIzaSyA4ev26qn-yxK7D2r7z-gieyFQevfsyluM';
+
+      // Discovery doc URL for APIs used by the quickstart
+      const DISCOVERY_DOC = 'https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest';
+
+      // Authorization scopes required by the API; multiple scopes can be
+      // included, separated by spaces.
+      const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
+
+      var tokenClient;
+      let gapiInited = false;
+      let gisInited = false;
+
+      /**
+       * Callback after api.js is loaded.
+       */
+      function gapiLoaded() {
+        window.gapi.load('client', initializeGapiClient);
+      }
+
+      /**
+       * Callback after the API client is loaded. Loads the
+       * discovery doc to initialize the API.
+       */
+      async function initializeGapiClient() {
+        await window.gapi.client.init({
+          apiKey: API_KEY,
+          discoveryDocs: [DISCOVERY_DOC],
+        });
+        gapiInited = true;
+      }
+
+      /**
+       * Callback after Google Identity Services are loaded.
+       */
+      function gisLoaded() {
+        tokenClient = window.google.accounts.oauth2.initTokenClient({
+          client_id: CLIENT_ID,
+          scope: SCOPES,
+          callback: '', // defined later
+        });
+        gisInited = true;
+        console.log(tokenClient)
+        window.tokenClient = tokenClient
+      }
+
+
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
