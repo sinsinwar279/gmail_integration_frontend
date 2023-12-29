@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import {Base64} from 'js-base64';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+
+
 
 const GmailApiQuickstart = () => {
     const [previousPageLink, setPreviousPageLink] = useState("")
     const [nextPageLink, setNextPageLink] = useState("")
     const [currentPage, setCurrentPage] = useState(0);
     const [totalRecords, setTotalRecords] = useState(0);
+    const [showModel, setShowModel] = useState(false);
+    const [mailBody, setMailBody] = useState(null);
 
     async function handleAuthClick() {
 
@@ -260,7 +266,7 @@ const GmailApiQuickstart = () => {
         var cell1 = row.insertCell(0);
         var cell2 = row.insertCell(1);
         var cell3 = row.insertCell(2);
-        var cell4 = row.insertCell(3);
+        // var cell4 = row.insertCell(3);
 
         // console.log(res.result.payload.body)
         const decodedBody = decodeMailBody(res)
@@ -271,7 +277,9 @@ const GmailApiQuickstart = () => {
         cell1.innerHTML = headersData["From"];
         cell2.innerHTML = headersData["Subject"];
         cell3.innerHTML = res.result.snippet;
-        cell4.innerHTML = decodedBody;
+
+        row.addEventListener("click",handleMailClick(decodedBody))
+        // cell4.innerHTML = decodedBody;
 
         if(decodedBody && headersData["From"].includes("<orders@minoanexperience.com>")) extractOrderAndTrackingInfo(decodedBody)
     }
@@ -323,6 +331,15 @@ const GmailApiQuickstart = () => {
         setCurrentPage(page);
     }
 
+    function handleMailClick(mailBody){
+        setShowModel(true);
+        setMailBody(mailBody);
+    }
+    function closeMailClick(){
+        setShowModel(false);
+
+    }
+
     return (
         <>
             <meta charSet="UTF-8" />
@@ -331,33 +348,66 @@ const GmailApiQuickstart = () => {
                 Quickstart
             </title>
             <meta charSet="utf-8" />
-            <p>Gmail API Quickstart</p>
-            {/*Add buttons to initiate auth sequence and sign out*/}
-            <button id="authorize_button" onClick={handleAuthClick}>
-                Authorize
-            </button>
-            <button id="signout_button" onClick={handleSignoutClick}>
-                Sign Out
-            </button>
-            <pre id="content" style={{ whiteSpace: "pre-wrap" }} />
-            <table id="myTable" border="1">
-                <tr>
-                </tr>
-            </table>
+          <div  className="main_wrapper">
+              <div className="main_wrapper_inner">
+                  <p className="mail_heading">Gmail API Quickstart</p>
+                  {/*Add buttons to initiate auth sequence and sign out*/}
+                  <button className="btn_primary" id="authorize_button" onClick={handleAuthClick}>
+                      Authorize
+                  </button>
+                  <button className="btn_primary sign_out" id="signout_button"  onClick={handleSignoutClick}>
+                      Sign Out
+                  </button>
+                  <pre id="content" style={{ whiteSpace: "pre-wrap" }} />
+                  <div className="table_main_wrap">
+                      <table className="table" id="myTable" border="1">
+                          <tr>
+                          </tr>
+                      </table>
 
-            <button onClick={() => {
-                listLabels(previousPageLink, currentPage - 1)
-            }}>Previous</button>
+                  </div>
+                  <Modal
 
-            {(
-                <div className='pagination_text' style={{}}>
-                    <span>Page {currentPage} of {Math.ceil(totalRecords / 50)}</span>
-                </div>
-            )}
+                      size="lg"
+                      aria-labelledby="contained-modal-title-vcenter"
+                      centered
+                      show={showModel}
+                  >
+                      <Modal.Header closeButton onClick={closeMailClick}>
+                          <Modal.Title id="contained-modal-title-vcenter">
+                              Modal heading
+                          </Modal.Title>
+                      </Modal.Header>
+                      <Modal.Body>
+                          {
+                              mailBody
+                          }
+                      </Modal.Body>
+                      <Modal.Footer>
+                          <Button onClick={closeMailClick} >Close</Button>
+                      </Modal.Footer>
+                  </Modal>
 
-            <button onClick={() => {
-                listLabels(nextPageLink, currentPage + 1)
-            }} disabled={currentPage === Math.ceil(totalRecords / 50)}>Next</button>
+                 <div className="mail_pagination">
+                     <button className="pagination_btn" onClick={() => {
+                         listLabels(previousPageLink, currentPage - 1)
+                     }}>Previous</button>
+
+                     {(
+                         <div className='pagination_text' style={{}}>
+                             <span>Page {currentPage} of {Math.ceil(totalRecords / 50)}</span>
+                         </div>
+                     )}
+
+                     <button className="pagination_btn" onClick={() => {
+                         listLabels(nextPageLink, currentPage + 1)
+                     }} disabled={currentPage === Math.ceil(totalRecords / 50)}>Next</button>
+                 </div>
+              </div>
+
+          </div>
+
+
         </>
     );
 };
