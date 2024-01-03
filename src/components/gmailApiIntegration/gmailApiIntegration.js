@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {Base64} from 'js-base64';
+import axios from "axios";
 
 const GmailApiQuickstart = () => {
     const [previousPageLink, setPreviousPageLink] = useState("")
@@ -8,45 +9,51 @@ const GmailApiQuickstart = () => {
     const [totalRecords, setTotalRecords] = useState(0);
 
     async function handleAuthClick() {
+        const url = "http://localhost:8000/authorize"
+        const response = await axios.get(url);
+        console.log(response.data?.redirectUrl, "redirect_url")
 
-        console.log(window.gapi.client.getToken(), "window.gapi.client.getToken()")
-        if (window.gapi.client.getToken() === null) {
-            console.log("inside")
-            let token = localStorage.getItem("googleTokenClient")
-            console.log(token, "token")
-            if (token){
-                window.tokenClient = JSON.parse(token);
-                document.getElementById('signout_button').style.visibility = 'visible';
-                // document.getElementById('authorize_button').innerText = 'Refresh';
-                await listLabels();
-                // window.tokenClient.requestAccessToken({prompt: ''});
-            }else {
-
-                // Prompt the user to select a Google Account and ask for consent to share their data
-                // when establishing a new session.
-                window.tokenClient.requestAccessToken({prompt: 'consent'});
-            }
-        } else {
-            console.log("else")
-            // Skip display of account chooser and consent dialog for an existing session.
-            document.getElementById('signout_button').style.visibility = 'visible';
-            // document.getElementById('authorize_button').innerText = 'Refresh';
-            await listLabels();
-        }
-
-        window.tokenClient.callback = async (resp) => {
-
-            if (resp.error !== undefined) {
-                throw (resp);
-            }
-
-            console.log(window.gapi.client.getToken(), "window.gapi.client.getToken() 2")
-            document.getElementById('signout_button').style.visibility = 'visible';
-            // document.getElementById('authorize_button').innerText = 'Refresh';
-            await listLabels();
+        window.location.replace(response.data?.redirectUrl)
 
 
-        };
+        // console.log(window.gapi.client.getToken(), "window.gapi.client.getToken()")
+        // if (window.gapi.client.getToken() === null) {
+        //     console.log("inside")
+        //     let token = localStorage.getItem("googleTokenClient")
+        //     console.log(token, "token")
+        //     if (token){
+        //         window.tokenClient = JSON.parse(token);
+        //         document.getElementById('signout_button').style.visibility = 'visible';
+        //         // document.getElementById('authorize_button').innerText = 'Refresh';
+        //         await listLabels();
+        //         // window.tokenClient.requestAccessToken({prompt: ''});
+        //     }else {
+        //
+        //         // Prompt the user to select a Google Account and ask for consent to share their data
+        //         // when establishing a new session.
+        //         window.tokenClient.requestAccessToken({prompt: 'consent'});
+        //     }
+        // } else {
+        //     console.log("else")
+        //     // Skip display of account chooser and consent dialog for an existing session.
+        //     document.getElementById('signout_button').style.visibility = 'visible';
+        //     // document.getElementById('authorize_button').innerText = 'Refresh';
+        //     await listLabels();
+        // }
+        //
+        // window.tokenClient.callback = async (resp) => {
+        //
+        //     if (resp.error !== undefined) {
+        //         throw (resp);
+        //     }
+        //
+        //     console.log(window.gapi.client.getToken(), "window.gapi.client.getToken() 2")
+        //     document.getElementById('signout_button').style.visibility = 'visible';
+        //     // document.getElementById('authorize_button').innerText = 'Refresh';
+        //     await listLabels();
+        //
+        //
+        // };
     }
 
 
@@ -314,7 +321,8 @@ const GmailApiQuickstart = () => {
         for (const item of labels) {
             response = await window.gapi.client.gmail.users.messages.get({
                 'userId': 'me',
-                'id': item.id
+                'id': item.id,
+
             });
             console.log(response)
             addRow(response)
