@@ -69,11 +69,9 @@ function Auth() {
         onChange: onSelectChange,
     };
 
-    const baseUrl = "https://797c-2401-4900-1c54-e46d-f5d0-a8a6-7049-54d9.ngrok-free.app"
-
     const fetchApi = async () => {
         try {
-            const url = baseUrl + "/auth"
+            const url = "http://localhost:8000/auth"
             console.log("before call")
             console.log(data)
             const res = await axios.post(url, {

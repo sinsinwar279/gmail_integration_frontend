@@ -8,10 +8,8 @@ const GmailApiQuickstart = () => {
     const [currentPage, setCurrentPage] = useState(0);
     const [totalRecords, setTotalRecords] = useState(0);
 
-    const baseUrl = "https://797c-2401-4900-1c54-e46d-f5d0-a8a6-7049-54d9.ngrok-free.app"
-
     async function handleAuthClick() {
-        const url = baseUrl + "/authorize"
+        const url = "http://localhost:8000/authorize"
         const response = await axios.get(url);
         console.log(response.data?.redirectUrl, "redirect_url")
 
