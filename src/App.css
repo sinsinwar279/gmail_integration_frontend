@@ -36,3 +36,124 @@
     transform: rotate(360deg);
   }
 }
+
+/*primary btn*/
+.btn_primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color:#dc5a4b;
+  border: none;
+  border-radius: 34px;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 21px;
+  color: #fff;
+  padding: 0px 25px 0px 25px;
+  height: 42px;
+  min-width: 125px;
+  text-align: center;
+  transition: 0.2s all ease;
+  -webkit-appearance: none;
+}
+.btn_primary.w_icon .el-icon {
+  display: inline-flex;
+  vertical-align: middle;
+  margin-left: 10px;
+}
+.btn_primary.w_icon .el-icon img {
+  display: inline-block;
+  width: 100%;
+  max-width: 18px;
+}
+.btn_primary.w-icon .el-icon {
+  display: inline-flex;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+.btn_primary.w-icon .el-icon img {
+  display: inline-block;
+  width: 100%;
+  max-width: 18px;
+}
+.btn_primary.w-icon .el-text {
+  display: inline-block;
+  width: 100%;
+  font-weight: 400;
+  font-size: 18px;
+  color: #fff;
+  vertical-align: middle;
+}
+.btn_primary:hover {
+  background-color: #e37b6f;
+  color: #fff;
+}
+.btn_primary:focus {
+  background-color: #dc5a4b;
+  border-color: transparent;
+  outline: none;
+  box-shadow: none;
+  color: #fff;
+}
+.btn_primary:focus:active {
+  border-color: transparent;
+  outline: none;
+  box-shadow: none;
+  color: #fff;
+}
+.btn_primary:focus-visible {
+  background-color: #c44c3e;
+  border-color: transparent;
+  outline: none;
+  box-shadow: none;
+  color: #fff;
+}
+.btn_primary:focus-within {
+  background-color: #dc5a4b;
+  border-color: transparent;
+  outline: none;
+  box-shadow: none;
+  color: #fff;
+}
+.btn_primary:active {
+  background-color: #c65144 !important;
+  border-color: transparent;
+  outline: none;
+  box-shadow: none;
+  color: #fff !important;
+}
+.btn_primary:disabled {
+  background-color: #f8dedb;
+  border-color: transparent;
+  outline: none;
+  box-shadow: none;
+  color: #fff;
+}
+.btn_primary.loader {
+  background: #c65144;
+}
+.btn_primary.loader:before {
+  position: absolute;
+  content: "";
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  width: 28px;
+  height: 28px;
+  /*background: url("/assets/images/btn_loader.svg") no-repeat;*/
+  animation: btn-loader 1.4s linear infinite;
+}
+
+
+
+
+
+
+
+
+
+
+
+
