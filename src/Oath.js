@@ -1,18 +1,25 @@
 import React, {useEffect, useState} from "react";
 import {useSearchParams,useNavigate} from "react-router-dom";
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 import axios from "axios";
 import {Table} from "antd";
+import './styles.scss'
+import { Pagination } from 'antd';
+import {Base64} from "js-base64";
+import DOMPurify from 'dompurify';
+
 
 function getHeadersData(headers, value){
     if (!headers || headers === []){
         return ""
     }
 
-    console.log(headers, "headers")
+    // console.log(headers, "headers")
     for (let i = 0; i < headers.length; i++) {
         const header = headers[i];
-        console.log(header.name, "header")
-        console.log(header.name === value)
+        // console.log(header.name, "header")
+        // console.log(header.name === value)
         if (header.name === value){
             return header.value
         }
@@ -55,33 +62,35 @@ const column = [
 
 function Auth() {
     const [isLoading, setIsLoading] = useState(true);
-    const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [params, setParams] = useSearchParams()
     const [tabledata, setTabledata] = useState([]);
-    const data = params.get("code") || "none";
+    const [showModel, setShowModel] = useState(false);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [previousPageLink, setPreviousPageLink] = useState("")
+    const [nextPageLink, setNextPageLink] = useState("")
+    const [totalRecords, setTotalRecords] = useState(0);
+    const [paramsValue, setParamsValue] = useState("");
     const navigate = useNavigate();
+    const [htmlContent, setHtmlContent] = useState('');
 
-    const onSelectChange = (newSelectedRowKeys) => {
-        setSelectedRowKeys(newSelectedRowKeys);
-    };
-    const rowSelection = {
-        selectedRowKeys,
-        onChange: onSelectChange,
-    };
-
-    const fetchApi = async () => {
+    const fetchApi = async (pageToken = "", currentPage = 1, code = "") => {
         try {
             const url = "http://localhost:8000/auth"
             console.log("before call")
-            console.log(data)
+            console.log(paramsValue)
             const res = await axios.post(url, {
-                "code": data
+                "code": code ? code : paramsValue,
+                "pageToken": pageToken
             });
             console.log(res, "response")
             if (res.status === 200) {
                 setTabledata(res.data.list);
                 setIsLoading(false);
+                setCurrentPage(currentPage);
+                updateTableData(res);
+                // setParamsValue("");
             }
+
         } catch (e) {
             console.log(e)
         }
@@ -89,53 +98,151 @@ function Auth() {
     }
     useEffect(() => {
         setIsLoading(true);
-        //navigate('/success')
-        fetchApi();
-        // setIsLoading(false)
+        setParamsValue(params.get("code") || "");
+        fetchApi("", 1, params.get("code") || "");
     }, [])
+
+
+    function updateTableData(res){
+        setTotalRecords(res.data?.resultSizeEstimate)
+        setNextPageLink(res.data?.nextPageToken)
+        setPreviousPageLink(res.data?.previousPageToken)
+    }
+
+    function closeMailClick(){
+        setShowModel(false);
+
+    }
+
+    function getDataFromParts(res){
+        let rawBody = res.payload?.parts
+        // console.log(rawBody)
+        if (!rawBody) return ""
+
+        let decodedBody = ""
+        for (let index = 0; index < rawBody.length; index++){
+            let item = rawBody[index]
+            // console.log(item)
+            // console.log(item.mimeType)
+            if(item.mimeType === "text/html"){
+                decodedBody = item.body.data;
+                break;
+            }
+            else if(item["mimeType"] === "text/plain"){
+                decodedBody = item.body.data;
+            }
+        }
+        // console.log(decodedBody);
+
+        return Base64.decode(decodedBody.replace(/-/g, '+').replace(/_/g, '/'));
+    }
+
+    function decodeMailBody(res){
+        if(!res) return ""
+        let rawBody = res.payload.body?.data
+        console.log(rawBody, "rawBody")
+        if (!rawBody){
+            return getDataFromParts(res);
+        }
+
+        return Base64.decode(rawBody.replace(/-/g, '+').replace(/_/g, '/'));
+    }
+
+    const getMailBody = (record) => {
+        console.log(record, "selectedRow")
+        const decodedBody = decodeMailBody(record);
+        console.log(decodedBody, "decodedbody")
+        // let modelBody = document.getElementById('modalBody');
+        // console.log(modelBody, "model");
+        // modelBody.innerHTML = decodedBody;
+
+        setHtmlContent(decodedBody);
+    };
+
     return (
         <>
+            <div className="email_header">
+                <div className={'container-fluid'}>
+                    <div className={'inner_header_wrap'}>
+                        <div className={'logo-wrap'}>
+                            <a href="" className={'logo-ui'}>
+                                <img src="https://dev-my.minoanexperience.com/assets/images/update-minoan_logo_green.svg" alt=""/>
+                            </a>
+                        </div>
 
-            {
-                isLoading ? (<>Loading</>) : (
+                    </div>
 
-                    <Table
-                        className='custom-table-wrap product-table'
-                        // rowSelection={rowSelection}
-                        columns={column}
-                        dataSource={tabledata}
-                        loading={isLoading}
-                        pagination={
-                            false
-                        }
-                    />
+                </div>
 
-                    // {
-                    //     tabledata.length > 0 &&
-                    //     (
-                    //         <div className='pagination_wrap'>
-                    //             <button onClick={() => {
-                    //                 handleOtherDropdownChange(otherStoreSelected, previousPageLink, currentPage - 1)
-                    //             }} disabled={currentPage === 1 || loadingTable}>Previous
-                    //                 <svg viewBox="0 0 256 512" xmlns="http://www.w3.org/2000/svg"><path d="M192 448c-8.188 0-16.38-3.125-22.62-9.375l-160-160c-12.5-12.5-12.5-32.75 0-45.25l160-160c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25L77.25 256l137.4 137.4c12.5 12.5 12.5 32.75 0 45.25C208.4 444.9 200.2 448 192 448z"/></svg>
-                    //             </button>
-                    //
-                    //             {!isLoading && (
-                    //                 <div className='pagination_text' style={{}}>
-                    //                     <span>Page {currentPage} of {Math.ceil(totalRecords / 50)}</span>
-                    //                 </div>
-                    //             )}
-                    //
-                    //             <button onClick={() => {
-                    //                 handleOtherDropdownChange(otherStoreSelected, nextPageLink, currentPage + 1)
-                    //             }} disabled={currentPage === Math.ceil(totalRecords / 50) || loadingTable}>Next
-                    //                 <svg viewBox="0 0 256 512" xmlns="http://www.w3.org/2000/svg"><path d="M64 448c-8.188 0-16.38-3.125-22.62-9.375c-12.5-12.5-12.5-32.75 0-45.25L178.8 256L41.38 118.6c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l160 160c12.5 12.5 12.5 32.75 0 45.25l-160 160C80.38 444.9 72.19 448 64 448z"/></svg>
-                    //             </button>
-                    //         </div>
-                    //     )
-                    // }
-                )
-            }
+            </div>
+           <div className={'table_outer_container'}>
+               <div className={'table_inner_container'}>
+                   {
+                       isLoading ? (<>Loading</>) : (
+                           <div>
+                               <Table
+                                   className='custom-table-wrap product-table'
+                                   // rowSelection={rowSelection}
+                                   onRow={(record,index)=>{
+                                       return{
+                                           onClick:(e)=> {
+                                               console.log({record,index})
+                                               console.log("working");
+                                               setShowModel(true);
+                                               getMailBody(record);
+                                           }
+                                       }
+                                   }}
+                                   columns={column}
+                                   dataSource={tabledata}
+                                   loading={isLoading}
+                                   pagination={
+                                       false
+                                   }
+                               />
+
+                               {
+                                   tabledata.length > 0 &&
+                                   (
+                                       <div>
+                                           <button onClick={() => {fetchApi(previousPageLink, currentPage - 1)}} disabled={currentPage === 1}>Previous</button>
+                                           {(
+                                               <div className='pagination_text' style={{}}>
+                                                   <span>Page {currentPage} of {Math.ceil(totalRecords / 50)}</span>
+                                               </div>
+                                           )}
+                                           <button onClick={() => {fetchApi(nextPageLink, currentPage + 1)}} disabled={currentPage === Math.ceil(totalRecords / 50)}>Next</button>
+                                       </div>
+                                   )
+                               }
+                           </div>
+                       )
+                   }
+               </div>
+           </div>
+
+            <div>
+                <Modal
+
+                    size="lg"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    show={showModel}
+                >
+                    <Modal.Header closeButton  onClick={closeMailClick}>
+                        {/*<Modal.Title id="contained-modal-title-vcenter">*/}
+                        {/*  Heading*/}
+                        {/*</Modal.Title>*/}
+                    </Modal.Header>
+                    <Modal.Body>
+                       <div id="modalBody" dangerouslySetInnerHTML={{ __html: htmlContent }}>
+                       </div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button onClick={closeMailClick} >Close</Button>
+                    </Modal.Footer>
+                </Modal>
+            </div>
         </>
     )
 }

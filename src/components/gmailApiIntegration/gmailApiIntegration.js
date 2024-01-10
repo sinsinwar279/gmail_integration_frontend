@@ -330,42 +330,45 @@ const GmailApiQuickstart = () => {
 
         setCurrentPage(page);
     }
+    const divStyle = {
+        backgroundImage: "url('https://dev-my.minoanexperience.com/assets/images/login_ui.png')",
+    }
 
     return (
         <>
-            <meta charSet="UTF-8" />
-            <title>
-                &lt;!DOCTYPE html&gt; &lt;html&gt; &lt;head&gt; &lt;title&gt;Gmail API
-                Quickstart
-            </title>
-            <meta charSet="utf-8" />
-            <p>Gmail API Quickstart</p>
-            {/*Add buttons to initiate auth sequence and sign out*/}
-            <button id="authorize_button" onClick={handleAuthClick}>
-                Authorize
-            </button>
-            <button id="signout_button" onClick={handleSignoutClick}>
-                Sign Out
-            </button>
-            <pre id="content" style={{ whiteSpace: "pre-wrap" }} />
-            <table id="myTable" border="1">
-                <tr>
-                </tr>
-            </table>
+            <div>
+                <div className="loginpage_wrapper height_100">
+                    <div className="container-fluid height_100">
+                        <div className="row height_100">
+                            <div className="col-md-6 col-lg-6 col-xl-7 px-0">
+                                <div className="login_left_wrap" style={divStyle} ></div>
+                            </div>
+                            <div className="col-md-6 col-lg-6 col-xl-5  px-0">
+                                <div className="login_form_wrap">
+                                <div className="header_wrap">
+                                    <div className="logo_ui">
+                                        <img src="https://dev-my.minoanexperience.com/assets/images/update-minoan_logo_green.svg" alt="" />
+                                    </div>
+                                </div>
+                                    <div className={'body_content_wrap'}>
+                                        <p className="welcom_txt">Gmail API Quickstart</p>
+                                        <h3> Authorize your account.</h3>
+                                        <button className="btn_primary" id="authorize_button" onClick={handleAuthClick}>
+                                            Authorize
+                                        </button>
 
-            <button onClick={() => {
-                listLabels(previousPageLink, currentPage - 1)
-            }}>Previous</button>
+                                    </div>
+                            </div>
+                        </div>
 
-            {(
-                <div className='pagination_text' style={{}}>
-                    <span>Page {currentPage} of {Math.ceil(totalRecords / 50)}</span>
+                    </div>
                 </div>
-            )}
+            </div>
 
-            <button onClick={() => {
-                listLabels(nextPageLink, currentPage + 1)
-            }} disabled={currentPage === Math.ceil(totalRecords / 50)}>Next</button>
+
+        </div>
+
+
         </>
     );
 };
